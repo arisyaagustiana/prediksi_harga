@@ -1,47 +1,61 @@
-#inisialisasi
-import numpy
+# inisialisasi
+import numpy as np
 import math
-from pandas import DataFrame, read_csv
-import matplotlib.pyplot as plt
 import pandas as pd
-import xlsxwriter
+import csv
 
-#Membaca excel
-training_p = r'data/training_pejati.xlsx'
-df1 = pd.read_excel('training_p)
-testing_p = r'data/testing_pejati.xlsx'
-df2 = pd.read_excel('testing_p)
+# Membaca excel
+# 'training_pejati.csv'
+training_p = input("Masukan file traning : ")
+df1 = pd.read_csv(training_p)
+# 'testing_pejati.csv'
+testing_p = input("Masukan file testing : ")
+df2 = pd.read_csv(testing_p)
 
-#Bobot korelasi
-bobot_p = [0,154 0,221 0,341 0,108 0,101 0,076]
+training_count = df1.count(axis="rows")[0]
+testing_count = df2.count(axis="rows")[0]
+rows_count = df1.count(axis="columns")[0]
 
-#n (variabel bebas) = 6
+train = np.array(df1)
+test = np.array(df2)
 
-#Mencari kesamaan nilai (retrieve): weight euclidean distance
-for i in range(testing_p):
-    for j in range(training_p):
-	dtotal_p = 0
-       for k in range(1, n):	
-		distance(i,j) = pow((testing_p[(i,k)]) - (training_p[(j,k)]),2)
-		kali(k) = distance(i,j) * bobot_p(k)
-		dtotal_p = d_total + kali(k)
-	return dtotal_p, math.sqrt(dtotal_p)
+# Bobot korelasi
+jml_bobot = input("Masukan jumlah bobot : ")
+# 0.154, 0.221, 0.341, 0.108, 0.101, 0.076
+bobot_p = []
+for i in range(int(jml_bobot)):
+	bobot = input("Bobot {} : ".format(i + 1))
+	bobot_p.append(float(bobot))
 
-#Mengurutkan nilai ed dari kecil ke besar
-	print dtotal_p.sort(reverse=False)
+# Mencari kesamaan nilai (retrieve): weight euclidean distance
+nilai = []
 
-#tentukan lokasi file, nama file dan inisialisasi xlsx
-	workbook = xlsxwriter.Workbook('dtotal_p.xlsx')
-	worksheet = workbook.add_worksheet('dpejati')
+for i in range(testing_count):
+	for j in range(training_count):
+		d_total = 0
 
-	datadpejati = 'dtotal_p'
-	row = 0
+		for k in range(rows_count - 1):
+			kali_bobot = pow((test[i, k] - train[j, k]), 2) * bobot_p[k]
+			d_total = d_total + kali_bobot
 
-#menulis file
-	for co1, data in enumerate(datadpejati):
-		worksheet.write_colomn(row, co1, data)
+		nilai.append([math.sqrt(d_total), j])
 
-#menutup file xlsx
-	workbook.close()
-return
-return
+nilai.sort(reverse=False)
+
+with open('ed.csv', 'w') as csvfile:
+	filewriter = csv.writer(csvfile, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+	for i in range(0, len(nilai)):
+		filewriter.writerow([nilai[i][0]])
+
+min = nilai[0][0]
+max = nilai[len(nilai) - 1][0]
+
+# Mencari nilai normalisasi ed
+normal = []
+for i in range(len(nilai)):
+	normal.append((nilai[i][0] - min) / (max - min))
+
+with open('normalisasi.csv', 'w') as csvfile:
+	filewriter = csv.writer(csvfile, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+	for i in range(0, len(normal)):
+		filewriter.writerow([normal[i]])
